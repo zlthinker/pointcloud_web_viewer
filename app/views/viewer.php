@@ -1,22 +1,28 @@
 <?php
 
+
+
+
 // Sanity check
 $valid = true;
 $pcDataFolder = DATAFOLDER . '/' . $pcFolder;
 $pcFile = $pcDataFolder . '/' . PCFILE;
 $infoFile = $pcDataFolder . '/' . PCINFO;
+
 if (!is_dir($pcDataFolder)) {
   $valid = false;
 }
 if (!file_exists($pcFile) || !file_exists($infoFile)) {
   $valid = false;
 }
-if (!$valid) {
-  header("Location: ../404");
-  die();
-}
+// if (!$valid) {
+//   header("Location: ../404");
+//   die();
+// }
 
 // Count the points of the pointcloud
+$pcFile = '/Users/Larry/Programs/pointcloud_web_viewer/data/pc.csv';
+debug_to_console($pcFile);
 $lineCount = 0;
 $handle = fopen($pcFile, "r");
 while(!feof($handle)){
@@ -25,6 +31,7 @@ while(!feof($handle)){
 }
 fclose($handle);
 $lineCount--;
+debug_to_console($lineCount);
 
 // Pointcloud url
 if (ENVIRONMENT === 'production') {
@@ -33,6 +40,8 @@ if (ENVIRONMENT === 'production') {
 else {
   $pcUrl = DEVELURL . $pcFile;
 }
+$pcUrl = 'localhost/data/pc.csv';
+debug_to_console($pcUrl);
 
 ?>
 
@@ -105,8 +114,12 @@ else {
         var scene = new THREE.Scene();
 
         // Camera
-        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
-        camera.position.z = -8;
+        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+        //camera.position.z = -8;
+        camera.position.set(0, -600, 179);
+        camera.up = new THREE.Vector3(0,0,1);
+        camera.lookAt(new THREE.Vector3(-1,1,0));
+
 
         // Detect webgl support
         if (!Detector.webgl) {
@@ -143,7 +156,7 @@ else {
         }
 
         // Init the geometry
-        var pointSize = 0.015;
+        var pointSize = 3;//0.015;
         var geometry = new THREE.Geometry({dynamic:true});
         var material = new THREE.ParticleBasicMaterial({size:pointSize, vertexColors:true});
 
@@ -151,17 +164,21 @@ else {
         var pointcloudLoaded = false;
         var colors = [];
         var min_x = 0, min_y = 0, min_z = 0, max_x = 0, max_y = 0, max_z = 0, freq = 0;
-        Papa.parse("<?php echo $pcUrl ?>", {
+        var file = "pc.csv";
+
+        Papa.parse(file, {
           download: true,
           worker: true,
           step: function(row) {
             var line = row.data[0];
+            console.log(line);
             if (line.length != 6) return;
 
             // Point
             var x = parseFloat(line[0]);
             var y = parseFloat(line[1]);
             var z = parseFloat(line[2]);
+            // console.log("zlzlzlzlzlzlzlzl " + x + ", " + y + ", " + z);
             if(x>max_x) max_x = x;
             if(x<min_x) min_x = x;
             if(y>max_y) max_y = y;
@@ -169,6 +186,7 @@ else {
             if(z>max_z) max_z = z;
             if(z<min_z) min_z = z;
             geometry.vertices.push(new THREE.Vector3(x, y, z));
+            //console.log("Pointcloud with " + geometry.vertices.length + " points loaded.");
 
             // Color
             var color = 'rgb(' + line[3] + ',' + line[4] + ',' + line[5] + ')';
@@ -184,8 +202,8 @@ else {
             }
           },
           complete: function() {
+            console.log("<?php echo $pcUrl ?>");
             console.log("Pointcloud with " + geometry.vertices.length + " points loaded.");
-
             // Build the scene
             geometry.colors = colors;
             var pointcloud = new THREE.ParticleSystem(geometry, material);
@@ -306,7 +324,7 @@ else {
         </p>
       </div>
       <div id="controls-iframe" style="position:absolute; top:5px; left:5px; z-index:999999; display:none;">
-        <a style="font-size:11px;" href="http://srv.uib.es/pointclouds/view/<?php echo $pcFolder ?>" target="_blank">view on srv.uib.es</a>
+        <a style="font-size:11px;" href="<?php echo $pcFolder ?>" target="_blank">view on srv.uib.es</a>
       </div>
 
       <div id="progressbar-container" class="progress progress-striped" style="position:absolute; z-index:999999; width:400px; top:230px;">
@@ -317,4 +335,3 @@ else {
 
   </body>
 </html>
-

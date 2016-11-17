@@ -1,5 +1,16 @@
 <?php
 
+function debug_to_console( $data ) {
+
+    if ( is_array( $data ) )
+        $output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
+    else
+        $output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+
+    echo $output;
+}
+
+
 /*
  *---------------------------------------------------------------
  * CONFIGURATION
@@ -9,7 +20,7 @@
  */
 
 // The directory where your pointclouds are saved
-define("DATAFOLDER", "data");
+define("DATAFOLDER", "/data");
 
 // The filenames of the pointclouds
 define("PCFILE", "pc.csv");
@@ -20,10 +31,10 @@ define("PCIMG", "img.png");
 define("ENVIRONMENT", "development");
 
 // The development url
-define("DEVELURL", "http://localhost/srv.uib.es/pointclouds/");
+define("DEVELURL", "");
 
 // The production url
-define("PRODURL", "http://srv.uib.es/pointclouds/");
+define("PRODURL", "");
 
 
 
@@ -52,12 +63,15 @@ if (sizeof($pathInfo['call_parts']) > 0) {
       include('app/views/404.php');
       break;
     default:
-      include('app/views/home.php');
+      //include('app/views/home.php');
+      $pcFolder = (isset($_REQUEST['c']) ? $_REQUEST['c'] : null);
+      include('app/views/viewer.php');
       break;
   }
 }
 else {
-  include('app/views/home.php');
+  $pcFolder = (isset($_REQUEST['c']) ? $_REQUEST['c'] : null);
+  include('app/views/viewer.php');
 }
 
 ?>
