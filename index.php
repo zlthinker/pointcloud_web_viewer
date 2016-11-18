@@ -20,7 +20,7 @@ function debug_to_console( $data ) {
  */
 
 // The directory where your pointclouds are saved
-define("DATAFOLDER", "/data");
+define("DATAFOLDER", "/Users/Larry/Programs/pointcloud_web_viewer/data");
 
 // The filenames of the pointclouds
 define("PCFILE", "pc.csv");
@@ -31,10 +31,10 @@ define("PCIMG", "img.png");
 define("ENVIRONMENT", "development");
 
 // The development url
-define("DEVELURL", "");
+define("DEVELURL", "localhost/data");
 
 // The production url
-define("PRODURL", "");
+define("PRODURL", "localhost/data");
 
 
 

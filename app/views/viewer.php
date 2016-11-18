@@ -21,7 +21,7 @@ if (!file_exists($pcFile) || !file_exists($infoFile)) {
 // }
 
 // Count the points of the pointcloud
-$pcFile = '/Users/Larry/Programs/pointcloud_web_viewer/data/pc.csv';
+$pcFile = $pcDataFolder . '/' . PCFILE;
 debug_to_console($pcFile);
 $lineCount = 0;
 $handle = fopen($pcFile, "r");
@@ -40,7 +40,7 @@ if (ENVIRONMENT === 'production') {
 else {
   $pcUrl = DEVELURL . $pcFile;
 }
-$pcUrl = 'localhost/data/pc.csv';
+
 debug_to_console($pcUrl);
 
 ?>
@@ -164,14 +164,13 @@ debug_to_console($pcUrl);
         var pointcloudLoaded = false;
         var colors = [];
         var min_x = 0, min_y = 0, min_z = 0, max_x = 0, max_y = 0, max_z = 0, freq = 0;
-        var file = "pc.csv";
+        var file = "<?php echo PCFILE ?>";
 
         Papa.parse(file, {
           download: true,
           worker: true,
           step: function(row) {
             var line = row.data[0];
-            console.log(line);
             if (line.length != 6) return;
 
             // Point
@@ -202,7 +201,6 @@ debug_to_console($pcUrl);
             }
           },
           complete: function() {
-            console.log("<?php echo $pcUrl ?>");
             console.log("Pointcloud with " + geometry.vertices.length + " points loaded.");
             // Build the scene
             geometry.colors = colors;
